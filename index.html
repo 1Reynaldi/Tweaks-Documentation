@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panduan Setprop Android</title>
+    <style>
+        /* Variabel CSS untuk fleksibilitas Tema (Light / Dark) */
+        :root {
+            --bg-color: #f4f7f6;
+            --text-main: #333333;
+            --text-muted: #666666;
+            --card-bg: #ffffff;
+            --primary-color: #2c3e50;
+            --accent-color: #3498db;
+            --border-color: #e0e6ed;
+            --value-bg: #f8f9fa;
+            --note-bg: #fff9e6;
+            --note-border: #f1c40f;
+            --badge-bg: #e8f4f8;
+            --header-bg: #2c3e50;
+            --header-text: #ffffff;
+            transition: all 0.3s ease;
+        }
+
+        /* Override Variabel untuk Mode Gelap */
+        [data-theme="dark"] {
+            --bg-color: #121212;
+            --text-main: #e0e0e0;
+            --text-muted: #a0a0a0;
+            --card-bg: #1e1e1e;
+            --primary-color: #64b5f6;
+            --accent-color: #4fc3f7;
+            --border-color: #333333;
+            --value-bg: #2a2a2a;
+            --note-bg: #332a00;
+            --note-border: #ffd54f;
+            --badge-bg: #0d47a1;
+            --header-bg: #1a1a1a;
+            --header-text: #e0e0e0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: var(--header-bg);
+            color: var(--header-text);
+            padding: 3rem 1rem;
+            text-align: center;
+            position: relative;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        header h1 { margin: 0; font-size: 2.2rem; }
+        header p { margin-top: 0.5rem; opacity: 0.9; }
+
+        /* Tombol Mode Gelap/Terang */
+        .theme-toggle {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: transparent;
+            border: 2px solid var(--accent-color);
+            color: var(--header-text);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        .theme-toggle:hover {
+            background: var(--accent-color);
+            color: #fff;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        .section-title {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 0.5rem;
+            margin-top: 3rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .prop-title {
+            font-family: monospace;
+            font-size: 1.25rem;
+            color: var(--accent-color);
+            margin-top: 0;
+            word-break: break-all;
+        }
+
+        .default-badge {
+            background-color: var(--badge-bg);
+            color: var(--accent-color);
+            padding: 0.2rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-left: 0.8rem;
+        }
+
+        .value-list { list-style: none; padding: 0; margin-top: 1rem; }
+        
+        .value-list li {
+            background: var(--value-bg);
+            margin-bottom: 0.5rem;
+            padding: 1rem;
+            border-radius: 6px;
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .value-name {
+            font-weight: bold;
+            font-family: monospace;
+            color: var(--primary-color);
+        }
+
+        .note {
+            background-color: var(--note-bg);
+            border-left: 4px solid var(--note-border);
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 0 6px 6px 0;
+            font-style: italic;
+            font-size: 0.95rem;
+        }
+
+        .error-msg {
+            text-align: center;
+            color: #e74c3c;
+            padding: 2rem;
+            background: #fdd;
+            border-radius: 8px;
+            margin-top: 2rem;
+        }
+
+        footer { text-align: center; padding: 2rem; color: var(--text-muted); }
+
+        @media (max-width: 768px) {
+            .theme-toggle { position: static; display: block; margin: 1rem auto 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <button class="theme-toggle" id="themeBtn">🌙 Mode Gelap</button>
+        <h1>Panduan Setprop Android</h1>
+        <p>Referensi Lengkap HWUI, RenderEngine, & SurfaceFlinger</p>
+    </header>
+
+    <div class="container" id="app">
+        <p style="text-align: center;">Memuat data setprop...</p>
+    </div>
+
+    <footer>
+        <p>Disusun oleh AI Assistant | Data diload dari setprop.json</p>
+    </footer>
+
+    <script>
+        // Logika Toggle Mode Gelap/Terang
+        const themeBtn = document.getElementById('themeBtn');
+        let isDarkMode = false;
+
+        themeBtn.addEventListener('click', () => {
+            isDarkMode = !isDarkMode;
+            if (isDarkMode) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                themeBtn.textContent = '☀️ Mode Terang';
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+                themeBtn.textContent = '🌙 Mode Gelap';
+            }
+        });
+
+        // Logika Mengambil dan Menampilkan Data JSON
+        const appContainer = document.getElementById('app');
+
+        async function loadData() {
+            try {
+                // Fetch data dari file json
+                const response = await fetch('setprop.json');
+                if (!response.ok) throw new Error("Gagal mengambil data");
+                const data = await response.json();
+                
+                appContainer.innerHTML = ''; // Hapus teks loading
+
+                // Render HTML berdasarkan isi JSON
+                data.groups.forEach(group => {
+                    let groupHTML = `<h2 class="section-title">${group.title}</h2>`;
+                    
+                    group.properties.forEach(prop => {
+                        let valuesHTML = prop.values.map(val => `
+                            <li>
+                                <span class="value-name">${val.name}</span>: ${val.desc}
+                                ${val.default ? `<span class="default-badge">Default: ${val.default}</span>` : ''}
+                            </li>
+                        `).join('');
+
+                        let noteHTML = prop.note ? `<div class="note">${prop.note}</div>` : '';
+
+                        groupHTML += `
+                            <div class="card">
+                                <h3 class="prop-title">${prop.key}</h3>
+                                <p>${prop.description}</p>
+                                <ul class="value-list">${valuesHTML}</ul>
+                                ${noteHTML}
+                            </div>
+                        `;
+                    });
+
+                    appContainer.innerHTML += groupHTML;
+                });
+
+            } catch (error) {
+                appContainer.innerHTML = `
+                    <div class="error-msg">
+                        <strong>Error Memuat JSON!</strong><br>
+                        Pastikan file <code>setprop.json</code> ada di folder yang sama.<br>
+                        <em>Catatan: Karena pembatasan keamanan browser (CORS), Anda mungkin harus membuka file ini menggunakan Local Server (misalnya ekstensi <b>Live Server</b> di VS Code) alih-alih klik kanan (Open in Browser) langsung.</em>
+                    </div>
+                `;
+                console.error(error);
+            }
+        }
+
+        // Panggil fungsi saat halaman selesai dimuat
+        window.onload = loadData;
+    </script>
+
+</body>
+</html>

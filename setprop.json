@@ -1,0 +1,174 @@
+{
+  "groups": [
+    {
+      "title": "1. HWUI & RenderEngine (Rendering Grafis)",
+      "properties": [
+        {
+          "key": "debug.hwui.renderer",
+          "description": "Menentukan pustaka grafis tingkat rendah (graphics pipeline) yang digunakan untuk merender UI aplikasi.",
+          "values": [
+            { "name": "opengl", "desc": "Driver standar OpenGL ES (Legacy, stabil tapi boros CPU)." },
+            { "name": "vulkan", "desc": "API Vulkan murni (Efisien untuk CPU, butuh driver matang)." },
+            { "name": "skiagl", "desc": "Engine Skia dengan backend OpenGL (Standar modern 2D).", "default": "Android 11-12" },
+            { "name": "skiavk", "desc": "Engine Skia dengan backend Vulkan (Paling mulus dan efisien daya).", "default": "Android 13+" }
+          ]
+        },
+        {
+          "key": "debug.renderengine.backend",
+          "description": "Mengontrol RenderEngine di dalam SurfaceFlinger untuk mengkomposisikan berbagai lapisan gambar sebelum dikirim ke layar.",
+          "values": [
+            { "name": "gles", "desc": "OpenGL ES standar." },
+            { "name": "threaded", "desc": "OpenGL ES dalam thread terpisah (mengurangi jank)." },
+            { "name": "skiagl", "desc": "Skia berbasis OpenGL untuk konsistensi dengan HWUI." },
+            { "name": "skiaglthreaded", "desc": "Skia OpenGL di thread terpisah (Performa terbaik untuk komposisi).", "default": "Umum Modern" }
+          ]
+        },
+        {
+          "key": "debug.hwui.show_dirty_regions",
+          "description": "Alat diagnostik untuk melacak area layar yang sedang digambar ulang (redrawn).",
+          "note": "Analisa: Berguna untuk mendeteksi Overdraw. Jika seluruh layar berkedip padahal hanya satu ikon yang berubah, rendering tidak efisien.",
+          "values": [
+            { "name": "true", "desc": "Menampilkan kotak berkedip pada area yang dirender ulang." },
+            { "name": "false", "desc": "Layar normal.", "default": "Default" }
+          ]
+        },
+        {
+          "key": "debug.hwui.use_buffer_age",
+          "description": "Berkaitan dengan optimasi frame buffer sebelumnya untuk menghemat daya GPU.",
+          "values": [
+            { "name": "true", "desc": "Mengecek umur frame; hanya menggambar area yang berubah. Sangat hemat baterai.", "default": "Default (Umum)" },
+            { "name": "false", "desc": "Mengabaikan history frame, cenderung menggambar ulang seluruh layar." }
+          ]
+        },
+        {
+          "key": "debug.hwui.use_gpu_pixel_buffers",
+          "description": "Mengatur alokasi memori untuk pemrosesan pixel buffer.",
+          "values": [
+            { "name": "true", "desc": "Menggunakan PBO di memori GPU (bypass CPU, lebih cepat memuat tekstur besar)." },
+            { "name": "false", "desc": "Data diproses di RAM utama sebelum ke GPU.", "default": "Bervariasi per device" }
+          ]
+        },
+        {
+          "key": "debug.hwui.use_hint_manager",
+          "description": "Mengontrol fitur ADPF (Android Dynamic Performance Framework) Hint Manager untuk sinkronisasi clockspeed CPU.",
+          "values": [
+            { "name": "true", "desc": "HWUI meminta boost CPU instan jika frame dirasa berat (mencegah frame drop).", "default": "Default" },
+            { "name": "false", "desc": "HWUI pasif, mengandalkan CPU Governor standar." }
+          ]
+        },
+        {
+          "key": "debug.hwui.target_cpu_time_percent",
+          "description": "Batas toleransi target waktu CPU untuk menyiapkan perintah grafis sebelum diserahkan ke GPU (dalam satu frame cycle).",
+          "values": [
+            { "name": "1 - 100", "desc": "Persentase dari total waktu frame (misal 16.6ms di 60Hz). Nilai ideal menyeimbangkan kerja CPU agar GPU tidak kelaparan data, namun CPU tidak over-boost.", "default": "Default ~70-80" }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "2. Komposisi Layar & EGL (SurfaceFlinger)",
+      "properties": [
+        {
+          "key": "debug.composition.type",
+          "description": "Menentukan hardware mana yang menyusun (composite) lapisan-lapisan UI menjadi satu frame layar.",
+          "values": [
+            { "name": "cpu", "desc": "Software rendering (Sangat lambat)." },
+            { "name": "gpu", "desc": "Rendering GPU (Cepat tapi boros daya dan VRAM)." },
+            { "name": "mdp / hwc", "desc": "Hardware Composer khusus (Paling efisien & hemat baterai)." },
+            { "name": "dyn", "desc": "Beralih cerdas antara GPU (saat animasi berat) dan HWC/MDP (saat layar statis).", "default": "Default" },
+            { "name": "c2d", "desc": "Mesin 2D lawas (Jarang dipakai sekarang)." }
+          ]
+        },
+        {
+          "key": "debug.egl.hw",
+          "description": "Menentukan apakah EGL (penghubung OpenGL/Vulkan ke sistem layar) berjalan di hardware atau software.",
+          "values": [
+            { "name": "1", "desc": "Hardware Accelerated (Memakai GPU fisik).", "default": "Default" },
+            { "name": "0", "desc": "Software mode (Sangat lag, CPU overheat)." }
+          ]
+        },
+        {
+          "key": "debug.sf.hw",
+          "description": "Akselerasi hardware untuk SurfaceFlinger (Pengelola jendela/tampilan visual utama).",
+          "values": [
+            { "name": "1", "desc": "SurfaceFlinger digerakkan hardware (Transisi UI secepat mungkin).", "default": "Default" },
+            { "name": "0", "desc": "UI diproses CPU (Sistem akan lag parah)." }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "3. Display Properties (DisplayProperties.sysprop)",
+      "properties": [
+        {
+          "key": "debug.egl.force_msaa",
+          "description": "Memaksa penggunaan Multi-Sample Anti-Aliasing (MSAA) secara global di tingkat EGL.",
+          "values": [
+            { "name": "true", "desc": "Menghaluskan tepi objek secara paksa (Grafis halus tapi sangat membebani GPU)." },
+            { "name": "false", "desc": "Diatur oleh masing-masing aplikasi.", "default": "Default" }
+          ]
+        },
+        {
+          "key": "debug.egl.trace",
+          "description": "Merekam jejak (tracing) panggilan API OpenGL ES untuk diagnostik logcat.",
+          "values": [
+            { "name": "<string>", "desc": "Nama fungsi/parameter (Digunakan khusus developer untuk melacak error GPU)." }
+          ]
+        },
+        {
+          "key": "debug.force_rtl",
+          "description": "Memaksa tata letak antarmuka berubah menjadi Right-to-Left.",
+          "values": [
+            { "name": "true", "desc": "UI terbalik (Untuk tes bahasa Arab/Ibrani)." },
+            { "name": "false", "desc": "Normal (Left-to-Right).", "default": "Default" }
+          ]
+        },
+        {
+          "key": "debug.layout",
+          "description": "Menampilkan garis batas komponen tata letak aplikasi (Show layout bounds).",
+          "values": [
+            { "name": "true", "desc": "Memunculkan kotak berwarna pada margin/padding UI." },
+            { "name": "false", "desc": "Layar normal.", "default": "Default" }
+          ]
+        },
+        {
+          "key": "debug.display.allow_non_native_refresh_rate_override",
+          "description": "Fleksibilitas menimpa refresh rate aplikasi di luar dukungan hardware.",
+          "values": [
+            { "name": "true", "desc": "Mengizinkan pemaksaan FPS emulator." },
+            { "name": "false", "desc": "Frame rate patuh pada hardware native.", "default": "Default" }
+          ]
+        },
+        {
+          "key": "debug.display.render_frame_rate_is_physical_refresh_rate",
+          "description": "Sinkronisasi kecepatan rendering GPU dengan refresh fisik panel (Penting untuk VRR/LTPO).",
+          "values": [
+            { "name": "true", "desc": "Render FPS dan Hz Panel diikat agar sama persis." },
+            { "name": "false", "desc": "GPU dan Panel berjalan independen.", "default": "Default" }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "4. HWUI Profiling & Debugging",
+      "properties": [
+        {
+          "key": "debug.hwui.profile.maxframes",
+          "description": "Menentukan kapasitas penyimpanan riwayat frame saat menggunakan dumpsys gfxinfo.",
+          "values": [
+            { "name": "Integer (misal: 60)", "desc": "Jika diatur ke 60, sistem menyimpan data 60 frame terakhir untuk dianalisa waktunya.", "default": "Default ~60-120" }
+          ]
+        },
+        {
+          "key": "debug.hwui.fps_divisor",
+          "description": "Pembagi untuk menurunkan kecepatan FPS layar secara artifisial (untuk tes beban rendah).",
+          "values": [
+            { "name": "1", "desc": "Full FPS (Normal).", "default": "Default" },
+            { "name": "2", "desc": "Setengah FPS (Layar 60Hz jalan di 30FPS)." },
+            { "name": ">2", "desc": "FPS diturunkan secara drastis (Simulasi lag)." }
+          ]
+        }
+      ]
+    }
+  ]
+}
